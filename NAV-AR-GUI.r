@@ -19,13 +19,14 @@ label_e <- glabel("e-greedy", editable=FALSE)
 
 edit_e <- gedit("0.05")
 
-label_itermax <-glabel("Intera��es", editable=FALSE)
+label_itermax <-glabel("Interações", editable=FALSE)
 
 edit_itermax <-gedit("500")
 
 button_executar <- gbutton("Executar", handler= fExecutar)
 
 fExecutar <- function(h,...) {
+
    m <- matrix(c(0,0,0,0,0,0,0,0,0,0,
                 0,2,1,1,0,0,1,1,1,0,
                 0,1,1,1,0,0,1,1,1,0,
@@ -45,24 +46,19 @@ fExecutar <- function(h,...) {
  	e<-as.numeric(e)
 	itermax <-svalue(edit_itermax)
 	itermax<-as.numeric(itermax)   
- 
- plot(alpha,gamma)
- 
-  
-
 
   q <- matrix(c(0),100,4)  #zera Q    
-  Li<-2 #posiçãoinicial
-  Ci<-2 #posiçãoinicial
+  Li<-2 #posiÃ§Ã£oinicial
+  Ci<-2 #posiÃ§Ã£oinicial
   
   NL <-10   #numero de linhas
   NC <-10   #numero de colunas
   NS <- NL*NC  #numero de estados
-  
+  GGG <- NULL
   GG <- 0  #acertos
-  NAA <- 0  #aões aleatorias
+  NAA <- 0  #aÃµes aleatorias
   NEP <- 0  #numero de episodios
-  iter <- 0 #numero de iterações atual
+  iter <- 0 #numero de iteraÃ§Ãµes atual
   L <- Li #linha atual
   C <- Ci  #coluna atual
   Lo=Li
@@ -74,16 +70,16 @@ fExecutar <- function(h,...) {
 
   while(iter < itermax){
     
-    iter = iter + 1
+    iter <- iter + 1
     
     s = (L-1)*NC+C #estado atual
     
     if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
       NAA <- NAA + 1
-      a <- sample(1:4,1) #numero aleatorio de 1 a 4, direção que irá andar
+      a <- sample(1:4,1) #numero aleatorio de 1 a 4, direÃ§Ã£o que irÃ¡ andar
     }else{
-      temp <- which(q[s,] == max(q[s,]))  #posição dos melhores resultados parao estado s na matriz q
-      a= temp[sample(length(temp), 1)]  #ação q sera realizada
+      temp <- which(q[s,] == max(q[s,]))  #posiÃ§Ã£o dos melhores resultados parao estado s na matriz q
+      a= temp[sample(length(temp), 1)]  #aÃ§Ã£o q sera realizada
     }
     
     
@@ -140,6 +136,8 @@ fExecutar <- function(h,...) {
              ,1,2,3,4,5,6,7,8,9,10
              ,10,10,10,10,10,10,10,10,10,10
              ,10,9,8,7,6,5,4,3,2,1)
+     	
+	par(mfrow=c(1,2))
       
       plot(x,y, col = "red",type = "p")
       
@@ -164,21 +162,20 @@ fExecutar <- function(h,...) {
       
       
       points(8,2, cex = 2 , col = "black",type = "o")
-      grid(nx = NULL, ny = NULL, col = "black", lty = "dotted")
-      
-      #rotx <- rotx + 0.5
-      #roty<- roty + 0.5        
+      grid(nx = NULL, ny = NULL, col = "black", lty = "dotted")    
       
       points( rotx, roty, cex = 2 , col = "black",type = "o")
-      Sys.sleep(0.2) 
-      
-      count <- 1
+      GGG[iter]<- GG
+
+    plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+    points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
+    
+      Sys.sleep(0.1)
+	count <- 1
       rotx <- Li
       roty <- Ci
-      
     }
   }
-  
 }
 
 # creation of the main window
@@ -190,7 +187,7 @@ BigGroup<-ggroup(cont=window)
 # creation of a subcontainer
 group<-ggroup(horizontal=FALSE, container=BigGroup)
 
-tmp<-gframe("Par�metros", container=group)
+tmp<-gframe("Parâmetros", container=group)
 
 lyt <- glayout ( cont = tmp)
 lyt[ 1 , 1 ] <- label_alpha
