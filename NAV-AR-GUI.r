@@ -5,25 +5,56 @@ library(gWidgets2RGtk2)
 
 label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
 
-
-edit_alpha <- gedit("0.9")
-
+edit_alpha <- gedit("0.90",width = 8)
 
 label_gamma <- glabel("Fator de Desconto", editable=FALSE)
 
-
-edit_gamma <- gedit("0.9")
+edit_gamma <- gedit("0.9",width = 8)
 
 label_e <- glabel("e-greedy", editable=FALSE)
 
-
-edit_e <- gedit("0.05")
+edit_e <- gedit("0.05",width = 8)
 
 label_itermax <-glabel("Interações", editable=FALSE)
 
-edit_itermax <-gedit("500")
+edit_itermax <-gedit("500",width = 8)
 
-button_executar <- gbutton("Executar", handler= fExecutar)
+
+
+label_sucess <-glabel("Sucessos", editable=FALSE)
+
+result_sucess <- gedit("",width = 8)
+
+
+label_np1 <-glabel("Numero de passos para o primeiro Sucesso", editable=FALSE)
+
+result_np1 <- gedit("",width = 8)
+
+
+label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
+
+result_npu <- gedit("",width = 8)
+
+
+label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
+
+result_nmaxp <- gedit("",width = 8)
+
+
+label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
+
+result_nminp <- gedit("",width = 8)
+
+
+label_nmedp <-glabel("Numero medio de passos", editable=FALSE)
+
+result_nmedp <- gedit("",width = 8)
+
+button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
+
+size(button_executar)<- c(100,70)
+
+
 
 fExecutar <- function(h,...) {
 
@@ -112,6 +143,9 @@ fExecutar <- function(h,...) {
     }else if (m[L,C] == 100){    #chegou no lugar certo
       R=1000
       GG=GG+1
+	if(GG==1){ 
+		svalue(result_np1) <- as.character(iter)
+		}
     }
     
     
@@ -170,12 +204,14 @@ fExecutar <- function(h,...) {
     plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
     points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
     
-      Sys.sleep(0.1)
+      Sys.sleep(0.05)
 	count <- 1
       rotx <- Li
       roty <- Ci
     }
   }
+
+svalue(result_sucess) <- as.character(GG)
 }
 
 # creation of the main window
@@ -187,9 +223,11 @@ BigGroup<-ggroup(cont=window)
 # creation of a subcontainer
 group<-ggroup(horizontal=FALSE, container=BigGroup)
 
-tmp<-gframe("Parâmetros", container=group)
 
-lyt <- glayout ( cont = tmp)
+fparametros <- gframe("Parâmetros", container=group)
+fresultados <- gframe("Resultados", container=group)
+
+lyt <- glayout ( cont = fparametros)
 lyt[ 1 , 1 ] <- label_alpha
 lyt[ 1 , 2 ] <- edit_alpha
 lyt[ 2 , 1 ] <- label_gamma
@@ -202,8 +240,29 @@ sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
 
-add(tmp,button_executar)
+lyt <- glayout ( cont = fresultados)
+lyt[ 1 , 1 ] <- label_sucess
+lyt[ 1 , 2 ] <- result_sucess
+lyt[ 2 , 1 ] <- label_np1
+lyt[ 2 , 2 ] <- result_np1
+lyt[ 3 , 1 ] <- label_npu
+lyt[ 3 , 2 ] <- result_npu
+lyt[ 4 , 1 ] <- label_nmaxp
+lyt[ 4 , 2 ] <- result_nmaxp
+lyt[ 5 , 1 ] <- label_nminp
+lyt[ 5 , 2 ] <- result_nminp
+lyt[ 6 , 1 ] <- label_nmedp
+lyt[ 6 , 2 ] <- result_nmedp
+sapply(lyt[ , 1],function( i ){
+font( i ) <- c( weight = "bold" , color = "black" )
+})
 
+
+add(fparametros,button_executar)
+add(fresultados,button_executar)
+
+
+ nb <- gnotebook(container = BigGroup, expand=TRUE)
 
 # adding a space for graphics to the main container
-add(BigGroup, ggraphics())
+add(BigGroup, ggraphics( container = nb))
