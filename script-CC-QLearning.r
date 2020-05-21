@@ -1,13 +1,12 @@
 library(igraph)
 library(clue)
 
-
 n <- 7 # numero de vertices
 i <- 1 # iterador
 VerImpares <- 0
 
 gimpar <- 0
-m <- read.table(row.names=1,file = "/home/tulio/Área de Trabalho/amatrix.csv",header = TRUE, sep=',')
+m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
 
 m <- as.matrix(m)
 
@@ -17,14 +16,14 @@ round(E(g)$weight,3)
 
 
 plot(g,edge.label=round(E(g)$weight, 3))
-  
+
 dist <- distances(g)
 grau <- degree(g)
 
 while(i <= n){  #descobrir o numero de vertices de grau impar
   if(grau[i] %% 2 == 1){
     gimpar <- gimpar + 1 
-    VerImpares[gimpar] <- i  # primeira posição no vetor é 1 nao 0
+    VerImpares[gimpar] <- i  # primeira posi????o no vetor ?? 1 nao 0
   }
   i <- i + 1
 }
@@ -116,8 +115,8 @@ head_of(g,arestas[[5]])
 
 alpha <- 0.8
 gamma <- 0.8
-e <- 0.09       #Guloso
-itermax <- 300   #iterações maximo
+e <- 1       #Guloso
+itermax <- 300   #itera????es maximo
 
 gg<-g
 iter<-0
@@ -130,106 +129,151 @@ length(arestas)
 
 possiveis <- E(g)
 
-
 while(iter < itermax){
-
+  
   iter <- iter+1
   possiveis<-NULL
   caminho <- NULL
+  a<-NULL
   possiveis <- E(g)
-  
+    
   a <- possiveis[1]
   caminho <- names(tail_of(g,possiveis[1]))
- 
+  possiveis <- possiveis[-1]
   
-    while(length(possiveis) != 0){
-      #s <- tail_of(g,a)
-      s <- a
-      if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
+  while(length(possiveis) != 1){
+    #s <- tail_of(g,a)
+    s <- a
+    if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
       #vertices[-match('TRUE', letters==v)] impossibilita ficar no mesmo estado
-        del <- sample(possiveis,1)#seleciona aleatoriamente o próximo vertice 
-        a <- possiveis[del]
-        caminho[length(caminho)+1] <- names(tail_of(g,possiveis[a]))
-        possiveis <- possiveis[-del]
-        #a <- sample(vertices[-match('TRUE', letters==s)],1)
-          }else{
-            
-            p<- NULL
-            
-            for(i in 1:length(possiveis)){
-              if(is.na(match('TRUE',arestas==possiveis[i]))){
-                for(j in 1:length(arestas)){
-                  if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
-                    p[length(p) + 1] <- arestas[j]
-                  }
-                }
-              }else{
-                p[length(p) + 1] <- match('TRUE',arestas==possiveis[i])
-              }
-            }
-            
-        temp <- which(q[tail_of(g,s),p] == max(q[tail_of(g,s),p]))  #posição dos melhores resultados parao estado s na matriz q
-        a <- temp[sample(length(temp), 1)] #ação q sera realizada
-        caminho[length(caminho)+1] <- names(tail_of(g,possiveis[a]))
-        a <- possiveis[a]
-        possiveis <- possiveis[-a]
-        #a <- names(a)
-        }
-
-      R <- -1
-      
-      if(head_of(g,s) != tail_of(g,a)){      #nao tem conexao
-        R <- -100
-      }else {
-        R <- 700
-        }
-      
-      ss <- a;
-      
-      p<- NULL 
+     
+      p<- NULL
       
       for(i in 1:length(possiveis)){
+        if(is.na(match('TRUE',arestas==possiveis[i]))){
+          for(j in 1:length(arestas)){
+            if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
+              p[length(p) + 1] <- j
+            }
+          }
+        }else{
+          p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
+        }
+      }
+      
+      pos <- sample(p,1)
+      
+      a <- arestas[pos]
+      
+      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      
+      if(is.na(match('TRUE',possiveis == arestas[pos]))){
+      for(i in 1:length(possiveis)){
+            if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
+              possiveis <- possiveis[-i]
+              break
+            }
+        }
+        }else{
+          possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
+        }
+      #a <- sample(vertices[-match('TRUE', letters==s)],1)
+    }else{
+      
+      p<- NULL
+      
+      for(i in 1:length(possiveis)){
+        if(is.na(match('TRUE',arestas==possiveis[i]))){
+          for(j in 1:length(arestas)){
+            if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
+              p[length(p) + 1] <- j
+            }
+          }
+        }else{
+          p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
+        }
+      }
+      
+      temp <- which(q[tail_of(g,s),p] == max(q[tail_of(g,s),p]))  #posi????o dos melhores resultados parao estado s na matriz q
+      
+      pos <- temp[sample(length(temp), 1)] #a????o q sera realizada
+      #pos< p[pos]
+      
+      a <- arestas[pos]
+      
+      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      
+      if(is.na(match('TRUE',possiveis == arestas[pos]))){
+        for(i in 1:length(possiveis)){
+          if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
+            possiveis <- possiveis[-i]
+            break
+          }
+        }
+      }else{
+        possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
+      }
+      #a <- names(a)
+    }
+    
+    R <- -1
+    
+    if(head_of(g,s) != tail_of(g,a)){      #nao tem conexao
+      R <- -100
+    }else {
+      R <- 700
+    }
+    
+    ss <- a;
+    
+    p<- NULL 
+
+    for(i in 1:length(possiveis)){
       if(is.na(match('TRUE',arestas==possiveis[i]))){
         for(j in 1:length(arestas)){
           if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
-            p[length(p) + 1] <- arestas[j]
+            p[length(p) + 1] <- j
           }
         }
       }else{
-        p[length(p) + 1] <- match('TRUE',arestas== possiveis[i])
+        p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
       }
-      }
-      
-      temp <- which(q[tail_of(g,ss),p] == max(q[tail_of(g,ss),p]))  
-      q
-      
-      aa <- temp[sample(length(temp), 1)] #ação q sera realizada
-      aa <- possiveis[aa]
-      
-      caminho
-      possiveis
-      a
-      aa
-      k<- ( (is.na(match('TRUE',arestas==a)))||(is.na(match('TRUE',arestas==aa))))
-      if(k){
-        for(i in 1:length(arestas)){
-          if((tail_of(g,arestas[i]) == tail_of(g,a) ) && (head_of(g,arestas[i]) == head_of(g,a))){
-            ii <- i
-          }
-          if((tail_of(g,arestas[i]) == tail_of(g,aa) ) && (head_of(g,arestas[i]) == head_of(g,aa))){
-            uu <- i
-          }
-        }
-        q[tail_of(g,s),ii] = q[tail_of(g,s),ii] + alpha*(R+gamma * q[tail_of(g,ss),uu] - q[tail_of(g,ss),ii])
-      }else{
-        q[tail_of(g,s),match('TRUE',arestas==a)] = q[tail_of(g,s),match('TRUE',arestas==a)] + alpha*(R+gamma * q[tail_of(g,ss),match('TRUE',arestas==aa)] - q[tail_of(g,ss),match('TRUE',arestas==a)])
-        }
-      q
     }
-        possiveis
-        caminho
-        q
+    
+    temp <- which(q[tail_of(g,ss),p] == max(q[tail_of(g,ss),p]))  
+    
+    pos <- temp[sample(length(temp), 1)] #a????o q sera realizada
+    #pos <- p[pos]
+    
+    aa <- arestas[pos]
+    
+    #nao considero o andar
+    #caminho[length(caminho)+1] <- names(tail_of(g,possiveis[pos]))
+    #possiveis <- possiveis[-pos]
+    
+    caminho
+    possiveis
+    a
+    aa
+    
+    k<- ( (is.na(match('TRUE',arestas==a)))||(is.na(match('TRUE',arestas==aa))))
+    if(k){
+      for(i in 1:length(arestas)){
+        if((tail_of(g,arestas[i]) == tail_of(g,a) ) && (head_of(g,arestas[i]) == head_of(g,a))){
+          ai <- i
+        }
+        if((tail_of(g,arestas[i]) == tail_of(g,aa) ) && (head_of(g,arestas[i]) == head_of(g,aa))){
+          aaii <- i
+        }
+      }
+      q[tail_of(g,s),ai] = q[tail_of(g,s),ai] + alpha*(R+gamma * q[tail_of(g,ss),aaii] - q[tail_of(g,ss),ai])
+    }else{
+      q[tail_of(g,s),match('TRUE',arestas==a)] = q[tail_of(g,s),match('TRUE',arestas==a)] + alpha*(R+gamma * q[tail_of(g,ss),match('TRUE',arestas==aa)] - q[tail_of(g,ss),match('TRUE',arestas==a)])
+    }
+    q
+  }
+  possiveis
+  caminho
+  q
 }
-
 possiveis
-
