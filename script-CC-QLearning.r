@@ -77,8 +77,6 @@ plot(g,edge.label=round(E(g)$weight,3))
 
 #tkplot(g,edge.label=round(E(g)$weight,3))
 
-
-
 narestas = length(E(g)$weight)
 i<-1
 
@@ -115,8 +113,8 @@ head_of(g,arestas[[5]])
 
 alpha <- 0.8
 gamma <- 0.8
-e <- 1       #Guloso
-itermax <- 300   #itera????es maximo
+e <- 0.09       #Guloso
+itermax <- 400   #itera????es maximo
 
 gg<-g
 iter<-0
@@ -136,19 +134,21 @@ while(iter < itermax){
   caminho <- NULL
   a<-NULL
   possiveis <- E(g)
-    
-  a <- possiveis[1]
+  #a <- possiveis[1]
+
   caminho <- names(tail_of(g,possiveis[1]))
-  possiveis <- possiveis[-1]
+  #possiveis <- possiveis[-1]
   
   while(length(possiveis) != 1){
-    #s <- tail_of(g,a)
-    s <- a
+    #s <- a
+    
+    s<- caminho[length(caminho)]
+    
     if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
       #vertices[-match('TRUE', letters==v)] impossibilita ficar no mesmo estado
      
       p<- NULL
-      
+      ##encontra possição no vet aresta
       for(i in 1:length(possiveis)){
         if(is.na(match('TRUE',arestas==possiveis[i]))){
           for(j in 1:length(arestas)){
@@ -165,8 +165,17 @@ while(iter < itermax){
       
       a <- arestas[pos]
       
-      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
       
+      troca<-NULL
+      if(head_of(g,a) == s){
+      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      troca <- TRUE
+      }else{
+        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
+      troca<-FALSE
+        }
+      
+      ##encontra possição no vet possiveis
       if(is.na(match('TRUE',possiveis == arestas[pos]))){
       for(i in 1:length(possiveis)){
             if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
@@ -182,6 +191,7 @@ while(iter < itermax){
       
       p<- NULL
       
+      ##encontra possição no vet aresta, das arestas que ainda sao possiveis
       for(i in 1:length(possiveis)){
         if(is.na(match('TRUE',arestas==possiveis[i]))){
           for(j in 1:length(arestas)){
@@ -193,15 +203,21 @@ while(iter < itermax){
           p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
         }
       }
-      
-      temp <- which(q[tail_of(g,s),p] == max(q[tail_of(g,s),p]))  #posi????o dos melhores resultados parao estado s na matriz q
-      
-      pos <- temp[sample(length(temp), 1)] #a????o q sera realizada
+      q[s,9] <- 1
+      temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
+      #consertado
+      pos <- p[sample(temp, 1)] #a????o q sera realizada
       #pos< p[pos]
-      
       a <- arestas[pos]
       
-      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      troca<-NULL
+      if(head_of(g,a) == s){
+        caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+        troca <- TRUE
+      }else{
+        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
+        troca<-FALSE
+      }
       
       if(is.na(match('TRUE',possiveis == arestas[pos]))){
         for(i in 1:length(possiveis)){
@@ -218,14 +234,14 @@ while(iter < itermax){
     
     R <- -1
     
-    if(head_of(g,s) != tail_of(g,a)){      #nao tem conexao
+    if((s != tail_of(g,a)) && (troca != TRUE)){      #nao tem conexao
       R <- -100
     }else {
       R <- 700
     }
     
-    ss <- a;
-    
+      ss <- caminho[length(caminho)];
+  
     p<- NULL 
 
     for(i in 1:length(possiveis)){
@@ -240,9 +256,9 @@ while(iter < itermax){
       }
     }
     
-    temp <- which(q[tail_of(g,ss),p] == max(q[tail_of(g,ss),p]))  
+    temp <- which(q[ss,p] == max(q[ss,p]))  
     
-    pos <- temp[sample(length(temp), 1)] #a????o q sera realizada
+    pos <- p[sample(temp, 1)] #a????o q sera realizada
     #pos <- p[pos]
     
     aa <- arestas[pos]
@@ -266,14 +282,14 @@ while(iter < itermax){
           aaii <- i
         }
       }
-      q[tail_of(g,s),ai] = q[tail_of(g,s),ai] + alpha*(R+gamma * q[tail_of(g,ss),aaii] - q[tail_of(g,ss),ai])
+      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[ss,ai])
     }else{
-      q[tail_of(g,s),match('TRUE',arestas==a)] = q[tail_of(g,s),match('TRUE',arestas==a)] + alpha*(R+gamma * q[tail_of(g,ss),match('TRUE',arestas==aa)] - q[tail_of(g,ss),match('TRUE',arestas==a)])
+      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[ss,match('TRUE',arestas==a)])
     }
-    q
+    
   }
   possiveis
   caminho
-  q
-}
-possiveis
+  
+  }
+  
