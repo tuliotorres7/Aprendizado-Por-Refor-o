@@ -111,10 +111,10 @@ tail_of(g,arestas[[5]])
 head_of(g,arestas[[5]])
 
 
-alpha <- 0.8
-gamma <- 0.8
-e <- 0.09       #Guloso
-itermax <- 400   #itera????es maximo
+alpha <- 0.75
+gamma <- 0.15
+e <- 0.01       #Guloso
+itermax <- 1000   #itera????es maximo
 
 gg<-g
 iter<-0
@@ -126,7 +126,8 @@ length(arestas)
 
 
 possiveis <- E(g)
-
+GGG<-NULL
+block25 <- NULL
 while(iter < itermax){
   
   iter <- iter+1
@@ -138,6 +139,8 @@ while(iter < itermax){
 
   caminho <- names(tail_of(g,possiveis[1]))
   #possiveis <- possiveis[-1]
+  
+  x<-0
   
   while(length(possiveis) != 1){
     #s <- a
@@ -167,7 +170,7 @@ while(iter < itermax){
       
       
       troca<-NULL
-      if(head_of(g,a) == s){
+      if(names(head_of(g,a)) == s){
       caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
       troca <- TRUE
       }else{
@@ -210,8 +213,9 @@ while(iter < itermax){
       #pos< p[pos]
       a <- arestas[pos]
       
+      
       troca<-NULL
-      if(head_of(g,a) == s){
+      if(names(head_of(g,a)) == s){
         caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
         troca <- TRUE
       }else{
@@ -234,10 +238,13 @@ while(iter < itermax){
     
     R <- -1
     
-    if((s != tail_of(g,a)) && (troca != TRUE)){      #nao tem conexao
-      R <- -100
+    
+    
+    if((s != names(tail_of(g,a))) && (troca != TRUE)){      #nao tem conexao
+      R <- -10000
+      x <- x + 1
     }else {
-      R <- 700
+      R <- 1000
     }
     
       ss <- caminho[length(caminho)];
@@ -291,5 +298,21 @@ while(iter < itermax){
   possiveis
   caminho
   
-  }
+  GGG[iter]<- x
+  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+  points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
   
+  if(iter %% 25 == 0){
+    block25[length(block25)+1]<- cont
+    cont <- 0
+  }
+  cont <- cont + x
+  }
+q
+sum(GGG)/itermax
+
+
+
+plot(c(1:(itermax/25)),block25/25,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+
+       
