@@ -1,63 +1,10 @@
 library(gWidgets2)
 library(gWidgets2RGtk2)
-
-
-label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
-
-edit_alpha <- gedit("0.90",width = 8)
-
-label_gamma <- glabel("Fator de Desconto", editable=FALSE)
-
-edit_gamma <- gedit("0.9",width = 8)
-
-label_e <- glabel("e-greedy", editable=FALSE)
-
-edit_e <- gedit("0.05",width = 8)
-
-label_itermax <-glabel("Interações", editable=FALSE)
-
-edit_itermax <-gedit("20",width = 8)
-
-
-
-label_sucess <-glabel("Sucessos", editable=FALSE)
-
-result_sucess <- gedit("",width = 8)
-
-
-label_np1 <-glabel("Numero de episódios para o primeiro Sucesso", editable=FALSE)
-
-result_np1 <- gedit("",width = 8)
-
-
-label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
-
-result_npu <- gedit("",width = 8)
-
-
-label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
-
-result_nmaxp <- gedit("",width = 8)
-
-
-label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
-
-result_nminp <- gedit("",width = 8)
-
-
-label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FALSE)
-
-result_nmeda <- gedit("",width = 8)
-
-button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
-
-size(button_executar)<- c(70,40)
-
-
-
-fExecutar <- function(h,...) {
 library(igraph)
 library(clue)
+
+cont <- 0
+fExecutar <- function(h,...) {
 
 n <- 7 # numero de vertices
 i <- 1 # iterador
@@ -362,13 +309,15 @@ while(iter < itermax){
     cont <- 0
   }
   cont <- cont + x
+ 
   }
 q
-
-plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos")
+plot(g,E(g),main = "MAPA")
+ 
+plot(c(1:(itermax/25)),block25/25, xlab = "Blocos de 25 Interações", ylab = "Média de Acertos")
 points(c(1:(itermax/25)),block25/25, cex = 0.5, col = "blue", type = "o")
 
-plot(g,E(g),main = "MAPA")
+
 svalue(result_np1) <- as.character(match(11,GGG))
 
 svalue(result_sucess) <- as.character(length(which(11==GGG)))
@@ -377,6 +326,61 @@ svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 
 
 }
+
+
+label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
+1
+
+edit_alpha <- gedit("0.90",width = 8)
+
+label_gamma <- glabel("Fator de Desconto", editable=FALSE)
+
+edit_gamma <- gedit("0.9",width = 8)
+
+label_e <- glabel("e-greedy", editable=FALSE)
+
+edit_e <- gedit("0.05",width = 8)
+
+label_itermax <-glabel("Interações", editable=FALSE)
+
+edit_itermax <-gedit("25",width = 8)
+
+
+
+label_sucess <-glabel("Sucessos", editable=FALSE)
+
+result_sucess <- gedit("",width = 8)
+
+
+label_np1 <-glabel("Numero de episódios para o primeiro Sucesso", editable=FALSE)
+
+result_np1 <- gedit("",width = 8)
+
+
+label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
+
+result_npu <- gedit("",width = 8)
+
+
+label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
+
+result_nmaxp <- gedit("",width = 8)
+
+
+label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
+
+result_nminp <- gedit("",width = 8)
+
+
+label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FALSE)
+
+result_nmeda <- gedit("",width = 8)
+
+button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
+
+size(button_executar)<- c(70,40)
+
+
 
 # creation of the main window
 window<-gwindow("gwindow")
@@ -394,13 +398,13 @@ fresultados <- gframe("Resultados", container=group)
 lyt <- glayout ( cont = fparametros)
 lyt[ 1 , 1 ] <- label_alpha
 lyt[ 1 , 2 ] <- edit_alpha
-lyt[ 5 , 2 ] <- button_executar
 lyt[ 2 , 1 ] <- label_gamma
 lyt[ 2 , 2 ] <- edit_gamma
 lyt[ 3 , 1 ] <- label_e
 lyt[ 3 , 2 ] <- edit_e
 lyt[ 4 , 1 ] <- label_itermax
 lyt[ 4 , 2 ] <- edit_itermax
+#lyt[ 5 , 2 ] <- button_executar
 sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
@@ -424,10 +428,9 @@ font( i ) <- c( weight = "bold" , color = "black" )
 
 
 add(fparametros,button_executar)
-add(fresultados,button_executar)
+#add(fresultados,button_executar)
 
-
- nb <- gnotebook(container = BigGroup, expand=TRUE)
+nb <- gnotebook(container = BigGroup, expand=TRUE)
 
 # adding a space for graphics to the main container
 add(BigGroup, ggraphics( container = nb))
