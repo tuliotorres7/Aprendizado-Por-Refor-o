@@ -3,13 +3,43 @@ library(gWidgets2RGtk2)
 library(igraph)
 library(clue)
 
-cont <- 0
+GGG<-NULL
+block25<- NULL
+momento<- NULL
+itermax<- 0
+
+fExportar <- function(h,...) {
+
+jpeg(filename = "Rplot.jpg", width = 480, height = 480, 
+     units = "px", pointsize = 12, quality = 100,
+     bg = "white",  res = NA, restoreConsole = TRUE)
+
+par(mfrow=c(2,2))
+
+plot(c(1:25),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =  ,col="blue")
+points(c(1:25),GGG, cex = 0.5, col = "blue", type = "o")
+
+
+
+plot(c(1:(25/25)),block25,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+points(c(1:(25/25)),block25, cex = 0.5, col = "blue", type = "o")
+
+plot(g,E(g), main= "MAPA")
+
+plot(c(1:25),momento,xlab = "Interações", ylab = "Acertos")
+points(c(1:25),momento, cex = 0.5, col = "blue", type = "o")
+
+
+dev.off()
+}
+
 fExecutar <- function(h,...) {
 
 n <- 7 # numero de vertices
 i <- 1 # iterador
 VerImpares <- 0
-
+cont <- 0
+cont2 <- 0
 gimpar <- 0
 m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
 
@@ -19,8 +49,6 @@ g <- graph.adjacency(m, mode ="undirected",weighted = TRUE)
 
 round(E(g)$weight,3)
 
-
-#plot(g,edge.label=round(E(g)$weight, 3))
 
 dist <- distances(g)
 grau <- degree(g)
@@ -64,7 +92,6 @@ t <- solve_LSAP(matDist, maximum = FALSE)
 
 t <- as.vector(t)
 
-#plot(g,edge.label=round(E(g)$weight,3))
 matDist<- as.matrix(matDist)
 
 for( i in 1:gimpar){
@@ -78,12 +105,8 @@ for( i in 1:gimpar){
   }
 }
 
-#plot(g,edge.label=round(E(g)$weight,3))
-
-
 narestas = length(E(g)$weight)
 i<-1
-
 
 arestas <- E(g)
 
@@ -123,7 +146,7 @@ head_of(g,arestas[[5]])
 	e <- svalue(edit_e)
  	e<-as.numeric(e)
 	itermax <-svalue(edit_itermax)
-	itermax<-as.numeric(itermax)   
+	itermax <-as.numeric(itermax)   
 
 gg<-g
 iter<-0
@@ -136,6 +159,7 @@ length(arestas)
 possiveis <- E(g)
 GGG<-NULL
 block25 <- NULL
+
 while(iter < itermax){
   
   iter <- iter+1
@@ -270,14 +294,6 @@ while(iter < itermax){
     
     aa <- arestas[pos]
     
-    #nao considero o andar
-    #caminho[length(caminho)+1] <- names(tail_of(g,possiveis[pos]))
-    #possiveis <- possiveis[-pos]
-    
-    caminho
-    possiveis
-    a
-    aa
     
     k<- ( (is.na(match('TRUE',arestas==a)))||(is.na(match('TRUE',arestas==aa))))
     if(k){
@@ -303,19 +319,32 @@ while(iter < itermax){
   plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =  ,col="blue")
   points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
 
-
   if(iter %% 25 == 0){
     block25[length(block25)+1]<- cont
     cont <- 0
   }
   cont <- cont + x
- 
   }
 q
-plot(g,E(g),main = "MAPA")
- 
-plot(c(1:(itermax/25)),block25/25, xlab = "Blocos de 25 Interações", ylab = "Média de Acertos")
+
+plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos")
 points(c(1:(itermax/25)),block25/25, cex = 0.5, col = "blue", type = "o")
+
+plot(g,E(g),main = "MAPA")
+
+cont2<-0
+
+momento <- NULL
+
+for( i in GGG){
+  momento[length(momento)+1]<- cont2
+  if (i == 11){
+    cont2<- cont2 + 1
+  }
+}
+
+plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos")
+points(c(1:itermax),momento, cex = 0.5, col = "blue", type = "o")
 
 
 svalue(result_np1) <- as.character(match(11,GGG))
@@ -328,22 +357,22 @@ svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 }
 
 
+
 label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
 1
-
 edit_alpha <- gedit("0.90",width = 8)
 
 label_gamma <- glabel("Fator de Desconto", editable=FALSE)
-
 edit_gamma <- gedit("0.9",width = 8)
 
 label_e <- glabel("e-greedy", editable=FALSE)
-
 edit_e <- gedit("0.05",width = 8)
 
 label_itermax <-glabel("Interações", editable=FALSE)
-
 edit_itermax <-gedit("25",width = 8)
+
+button_executar <- gbutton("Executar", handler= fExecutar)
+size(button_executar)<- c(70,40)
 
 
 
@@ -357,29 +386,17 @@ label_np1 <-glabel("Numero de episódios para o primeiro Sucesso", editable=FALS
 result_np1 <- gedit("",width = 8)
 
 
-label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
-
-result_npu <- gedit("",width = 8)
-
-
 label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
 
 result_nmaxp <- gedit("",width = 8)
-
-
-label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
-
-result_nminp <- gedit("",width = 8)
-
 
 label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FALSE)
 
 result_nmeda <- gedit("",width = 8)
 
-button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
+button_exportar <- gbutton("Exportar", handler= fExportar,border=TRUE)
 
-size(button_executar)<- c(70,40)
-
+#size(button_exportar)<- c(70,40)
 
 
 # creation of the main window
@@ -404,7 +421,8 @@ lyt[ 3 , 1 ] <- label_e
 lyt[ 3 , 2 ] <- edit_e
 lyt[ 4 , 1 ] <- label_itermax
 lyt[ 4 , 2 ] <- edit_itermax
-#lyt[ 5 , 2 ] <- button_executar
+lyt[ 5 , 2 ] <- button_executar
+
 sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
@@ -414,23 +432,17 @@ lyt[ 1 , 1 ] <- label_sucess
 lyt[ 1 , 2 ] <- result_sucess
 lyt[ 2 , 1 ] <- label_np1
 lyt[ 2 , 2 ] <- result_np1
-lyt[ 3 , 1 ] <- label_npu
-lyt[ 3 , 2 ] <- result_npu
-lyt[ 4 , 1 ] <- label_nmaxp
-lyt[ 4 , 2 ] <- result_nmaxp
-lyt[ 5 , 1 ] <- label_nminp
-lyt[ 5 , 2 ] <- result_nminp
-lyt[ 6 , 1 ] <- label_nmeda
-lyt[ 6 , 2 ] <- result_nmeda
+lyt[ 3 , 1 ] <- label_nmaxp
+lyt[ 3 , 2 ] <- result_nmaxp
+lyt[ 4 , 1 ] <- label_nmeda
+lyt[ 4 , 2 ] <- result_nmeda
+lyt[ 5 , 2 ] <- button_exportar
+
 sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
 
-
-add(fparametros,button_executar)
-#add(fresultados,button_executar)
-
-nb <- gnotebook(container = BigGroup, expand=TRUE)
+ nb <- gnotebook(container = BigGroup, expand=TRUE, )
 
 # adding a space for graphics to the main container
-add(BigGroup, ggraphics( container = nb))
+add(BigGroup, ggraphics( container = nb, name = "Gráficos"))
