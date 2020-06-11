@@ -1,0 +1,498 @@
+library(gWidgets2)
+library(gWidgets2RGtk2)
+library(igraph)
+library(clue)
+
+options(guiToolkit="RGtk2")
+
+
+fButton <- function(h,...) {
+
+if(svalue(rb)== "CC"){
+visible(window)<- FALSE
+GGG<-NULL
+block25<- NULL
+momento<- NULL
+itermax<- 0
+
+fExportar <- function(h,...) {
+
+jpeg(filename = "Rplot.jpg", width = 480, height = 480, 
+     units = "px", pointsize = 12, quality = 100,
+     bg = "white",  res = NA, restoreConsole = TRUE)
+
+par(mfrow=c(2,2))
+
+plot(c(1:25),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =  ,col="blue")
+points(c(1:25),GGG, cex = 0.5, col = "blue", type = "o")
+
+
+
+plot(c(1:(25/25)),block25,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+points(c(1:(25/25)),block25, cex = 0.5, col = "blue", type = "o")
+
+plot(g,E(g), main= "MAPA")
+
+plot(c(1:25),momento,xlab = "Interações", ylab = "Acertos")
+points(c(1:25),momento, cex = 0.5, col = "blue", type = "o")
+
+
+dev.off()
+}
+
+fExecutar <- function(h,...) {
+
+#dispose(nb,fimage)
+
+n <- 7 # numero de vertices
+i <- 1 # iterador
+VerImpares <- 0
+cont <- 0
+cont2 <- 0
+gimpar <- 0
+m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
+
+m <- as.matrix(m)
+
+g <- graph.adjacency(m, mode ="undirected",weighted = TRUE)
+
+round(E(g)$weight,3)
+
+
+dist <- distances(g)
+grau <- degree(g)
+
+while(i <= n){  #descobrir o numero de vertices de grau impar
+  if(grau[i] %% 2 == 1){
+    gimpar <- gimpar + 1 
+    VerImpares[gimpar] <- i  # primeira posi????o no vetor ?? 1 nao 0
+  }
+  i <- i + 1
+}
+i <- 0
+matDist <- matrix(c(0),ncol=n,nrow = n)
+
+for(i in VerImpares){
+  for(u in VerImpares){
+    matDist[i,u] <- dist[i,u] 
+  }  
+}
+g <- graph.adjacency(matDist, mode ="undirected",weighted = TRUE)
+
+x <- gimpar
+
+for(i in n:1){
+  if( i != VerImpares[x]){
+    matDist <- matDist[(-i),]
+    matDist <- matDist[,(-i)]
+  }else{
+    x<- x-1 
+    if(x==0){
+      x=1 # nao deixar o iterador chegar a 0
+    }
+  }
+}
+
+diag(matDist) = 1000
+
+g <- graph.adjacency(m, mode ="undirected",weighted = TRUE)
+
+t <- solve_LSAP(matDist, maximum = FALSE)
+
+t <- as.vector(t)
+
+matDist<- as.matrix(matDist)
+
+for( i in 1:gimpar){
+  if(is.na(VerImpares[i]) == FALSE){
+    g <- add_edges(g, c(VerImpares[i],VerImpares[t[i]]))
+    
+    E(g)$weight[length(E(g)$weight)]<-matDist[i,t[i]]
+    
+    VerImpares[t[i]] = NA
+    #plot(g)
+  }
+}
+
+narestas = length(E(g)$weight)
+i<-1
+
+arestas <- E(g)
+
+length(arestas)
+
+
+i<-1
+
+
+tf <- which_multiple(g, arestas)
+for(i in i:length(arestas)){
+  if(tf[i]){
+    arestas <- arestas[-i]
+  }
+}
+
+
+n <-7
+
+q <-matrix(c(0),n, length(arestas))  #zera Q  
+q
+
+vertices <- c("a","b","c","d","e","f","g")
+rownames(q) <- vertices
+
+
+
+tail_of(g,arestas[[5]])
+head_of(g,arestas[[5]])
+
+
+ 
+	alpha <-  svalue(edit_alpha)
+ 	alpha <- as.numeric(alpha)   
+ 	gamma <-  svalue(edit_gamma)
+ 	gamma <- as.numeric(gamma)
+	e <- svalue(edit_e)
+ 	e<-as.numeric(e)
+	itermax <-svalue(edit_itermax)
+	itermax <-as.numeric(itermax)   
+
+gg<-g
+iter<-0
+
+narestas <- 5
+
+length(arestas) 
+
+
+possiveis <- E(g)
+GGG<-NULL
+block25 <- NULL
+
+while(iter < itermax){
+  
+  iter <- iter+1
+  possiveis<-NULL
+  caminho <- NULL
+  a<-NULL
+  possiveis <- E(g)
+  
+  caminho <- names(tail_of(g,possiveis[1]))
+  
+  x<-0
+  
+  while(length(possiveis) != 1){
+    
+    s<- caminho[length(caminho)]
+    
+    if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
+     
+      p<- NULL
+      ##encontra possição no vet aresta
+      for(i in 1:length(possiveis)){
+        if(is.na(match('TRUE',arestas==possiveis[i]))){
+          for(j in 1:length(arestas)){
+            if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
+              p[length(p) + 1] <- j
+            }
+          }
+        }else{
+          p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
+        }
+      }
+      
+      pos <- sample(p,1)
+      
+      a <- arestas[pos]
+      
+      
+      troca<-NULL
+      if(names(head_of(g,a)) == s){
+      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      troca <- TRUE
+      }else{
+        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
+      troca<-FALSE
+        }
+      
+      ##encontra possição no vet possiveis
+      if(is.na(match('TRUE',possiveis == arestas[pos]))){
+      for(i in 1:length(possiveis)){
+            if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
+              possiveis <- possiveis[-i]
+              break
+            }
+        }
+        }else{
+          possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
+        }
+    }else{
+      
+      p<- NULL
+      
+      ##encontra possição no vet aresta, das arestas que ainda sao possiveis
+      for(i in 1:length(possiveis)){
+        if(is.na(match('TRUE',arestas==possiveis[i]))){
+          for(j in 1:length(arestas)){
+            if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
+              p[length(p) + 1] <- j
+            }
+          }
+        }else{
+          p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
+        }
+      }
+      q[s,9] <- 1
+      temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
+      #consertado
+      pos <- p[sample(temp, 1)] #a????o q sera realizada
+      a <- arestas[pos]
+      
+      
+      troca<-NULL
+      if(names(head_of(g,a)) == s){
+        caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+        troca <- TRUE
+      }else{
+        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
+        troca<-FALSE
+      }
+      
+      if(is.na(match('TRUE',possiveis == arestas[pos]))){
+        for(i in 1:length(possiveis)){
+          if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
+            possiveis <- possiveis[-i]
+            break
+          }
+        }
+      }else{
+        possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
+      }
+    }
+    
+    R <- -1
+    
+    
+    
+    if((s != names(tail_of(g,a))) && (troca != TRUE)){      #nao tem conexao
+      R <- -10000
+      x <- x + 1
+    }else {
+      R <- 1000
+    }
+    
+      ss <- caminho[length(caminho)];
+  
+    p<- NULL 
+
+    for(i in 1:length(possiveis)){
+      if(is.na(match('TRUE',arestas==possiveis[i]))){
+        for(j in 1:length(arestas)){
+          if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
+            p[length(p) + 1] <- j
+          }
+        }
+      }else{
+        p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
+      }
+    }
+    
+    temp <- which(q[ss,p] == max(q[ss,p]))  
+    
+    pos <- p[sample(temp, 1)] #a????o q sera realizada
+    
+    aa <- arestas[pos]
+    
+    
+    k<- ( (is.na(match('TRUE',arestas==a)))||(is.na(match('TRUE',arestas==aa))))
+    if(k){
+      for(i in 1:length(arestas)){
+        if((tail_of(g,arestas[i]) == tail_of(g,a) ) && (head_of(g,arestas[i]) == head_of(g,a))){
+          ai <- i
+        }
+        if((tail_of(g,arestas[i]) == tail_of(g,aa) ) && (head_of(g,arestas[i]) == head_of(g,aa))){
+          aaii <- i
+        }
+      }
+      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[ss,ai])
+    }else{
+      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[ss,match('TRUE',arestas==a)])
+    }
+    
+  }
+  possiveis
+  caminho
+  par(mfrow=c(2,2))
+  GGG[iter]<- x
+
+  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex = 0.5 ,col="blue")
+  cont <- cont + x
+
+  if(iter %% 25 == 0){
+    block25[length(block25)+1]<- cont
+    cont <- 0
+  }
+  
+  }
+q
+
+plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos",type="o",cex = 0.5 ,col="blue")
+points(c(1:(itermax/25)),block25/25, cex = 0.5, col = "blue", type = "o")
+
+plot(g,main = "MAPA")
+  
+
+cont2<-0
+momento <- NULL
+for( i in GGG){
+  momento[length(momento)+1]<- cont2
+  if (i == 11){
+    cont2<- cont2 + 1
+  }
+}
+
+plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos", cex = 0.5, col = "blue", type = "o")
+points(c(1:itermax),momento, cex = 0.5, col = "blue", type = "o")
+
+svalue(result_np1) <- as.character(match(11,GGG))
+
+svalue(result_sucess) <- as.character(length(which(11==GGG)))
+
+svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
+
+
+}
+
+
+
+label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
+edit_alpha <- gedit("0.90",width = 8)
+
+label_gamma <- glabel("Fator de Desconto", editable=FALSE)
+edit_gamma <- gedit("0.9",width = 8)
+
+label_e <- glabel("e-greedy", editable=FALSE)
+edit_e <- gedit("0.05",width = 8)
+
+label_itermax <-glabel("Interações", editable=FALSE)
+edit_itermax <-gedit("25",width = 8)
+
+button_executar <- gbutton("Executar", handler= fExecutar)
+size(button_executar)<- c(70,40)
+
+
+
+label_sucess <-glabel("Sucessos", editable=FALSE)
+
+result_sucess <- gedit("",width = 8)
+
+
+label_np1 <-glabel("Numero de episódios para o primeiro Sucesso", editable=FALSE)
+
+result_np1 <- gedit("",width = 8)
+
+
+label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
+
+result_nmaxp <- gedit("",width = 8)
+
+label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FALSE)
+
+result_nmeda <- gedit("",width = 8)
+
+button_exportar <- gbutton("Exportar", handler= fExportar)
+
+#size(button_exportar)<- c(70,40)
+
+
+
+# creation of the main window
+window2<-gwindow("gwindow", visible = FALSE)
+visible(window2)<- TRUE
+# creation of the main container
+BigGroup<-ggroup(cont=window2)
+
+# creation of a subcontainer
+group<-ggroup(horizontal=FALSE, container=BigGroup)
+
+
+fparametros <- gframe("Parâmetros", container=group)
+fresultados <- gframe("Resultados", container=group)
+
+lyt <- glayout ( cont = fparametros)
+lyt[ 1 , 1 ] <- label_alpha
+lyt[ 1 , 2 ] <- edit_alpha
+lyt[ 2 , 1 ] <- label_gamma
+lyt[ 2 , 2 ] <- edit_gamma
+lyt[ 3 , 1 ] <- label_e
+lyt[ 3 , 2 ] <- edit_e
+lyt[ 4 , 1 ] <- label_itermax
+lyt[ 4 , 2 ] <- edit_itermax
+lyt[ 5 , 2 ] <- button_executar
+
+sapply(lyt[ , 1],function( i ){
+#font( i ) <- c( weight = "bold" , color = "black" )
+})
+
+lyt <- glayout ( cont = fresultados)
+lyt[ 1 , 1 ] <- label_sucess
+lyt[ 1 , 2 ] <- result_sucess
+lyt[ 2 , 1 ] <- label_np1
+lyt[ 2 , 2 ] <- result_np1
+lyt[ 3 , 1 ] <- label_nmaxp
+lyt[ 3 , 2 ] <- result_nmaxp
+lyt[ 4 , 1 ] <- label_nmeda
+lyt[ 4 , 2 ] <- result_nmeda
+lyt[ 5 , 2 ] <- button_exportar
+
+sapply(lyt[ , 1],function( i ){
+#font( i ) <- c( weight = "bold" , color = "black" )
+})
+
+
+# adding a space for graphics to the main container
+g1<-ggraphics(container = BigGroup , expand = TRUE)
+add(BigGroup,g1)
+
+
+dispose(window)
+
+visible(window2) <- TRUE
+
+
+
+#nb <- gnotebook(container = BigGroup, expand=TRUE)	
+#add(BigGroup, ggraphics( container = nb))
+#fimage <- gframe( "",container = nb[1])
+#img <- gimage(filename = "img.png",cont = fimage)
+#names(nb)[1] <- "Gráficos"
+#delete(nb[1],fimage)
+
+}else{if(svalue(rb) == "NAV"){
+
+}else{  }}
+}
+
+# creation of the main window
+
+window <-gwindow("LARSim-R")
+
+
+# creation of the main container
+BigGroup<-ggroup(cont=window)
+
+# creation of a subcontainer
+group<-ggroup(horizontal=FALSE, container=BigGroup)
+
+fmodulos <- gframe("Modulos", container=group)
+size(fmodulos)<- c(300,300)
+
+modulo <- c("NAV","CC","Estatistico")
+rb <- gradio(modulo, container= fmodulos)
+
+button_executar <- gbutton("Executar",handler = fButton, container = group)
+size(button_executar)<- c(40,50)
+svalue(rb)<-"CC"
+fimage <- gframe("Realização", container= BigGroup)
+img <- gimage(filename = "img.png",cont = fimage)
+visible(window)<- TRUE
