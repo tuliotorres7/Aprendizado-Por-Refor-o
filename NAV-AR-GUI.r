@@ -3,58 +3,6 @@ library(gWidgets2)
 library(gWidgets2RGtk2)
 
 
-label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
-
-edit_alpha <- gedit("0.90",width = 8)
-
-label_gamma <- glabel("Fator de Desconto", editable=FALSE)
-
-edit_gamma <- gedit("0.9",width = 8)
-
-label_e <- glabel("e-greedy", editable=FALSE)
-
-edit_e <- gedit("0.05",width = 8)
-
-label_itermax <-glabel("Interações", editable=FALSE)
-
-edit_itermax <-gedit("500",width = 8)
-
-
-
-label_sucess <-glabel("Sucessos", editable=FALSE)
-
-result_sucess <- gedit("",width = 8)
-
-
-label_np1 <-glabel("Numero de passos para o primeiro Sucesso", editable=FALSE)
-
-result_np1 <- gedit("",width = 8)
-
-
-label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
-
-result_npu <- gedit("",width = 8)
-
-
-label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
-
-result_nmaxp <- gedit("",width = 8)
-
-
-label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
-
-result_nminp <- gedit("",width = 8)
-
-
-label_nmedp <-glabel("Numero medio de passos", editable=FALSE)
-
-result_nmedp <- gedit("",width = 8)
-
-button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
-
-size(button_executar)<- c(100,70)
-
-
 
 fExecutar <- function(h,...) {
 
@@ -214,6 +162,62 @@ fExecutar <- function(h,...) {
 svalue(result_sucess) <- as.character(GG)
 }
 
+
+
+label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
+
+edit_alpha <- gedit("0.90",width = 8)
+
+label_gamma <- glabel("Fator de Desconto", editable=FALSE)
+
+edit_gamma <- gedit("0.9",width = 8)
+
+label_e <- glabel("e-greedy", editable=FALSE)
+
+edit_e <- gedit("0.05",width = 8)
+
+label_itermax <-glabel("Interações", editable=FALSE)
+
+edit_itermax <-gedit("500",width = 8)
+
+
+
+label_sucess <-glabel("Sucessos", editable=FALSE)
+
+result_sucess <- gedit("",width = 8)
+
+
+label_np1 <-glabel("Numero de passos para o primeiro Sucesso", editable=FALSE)
+
+result_np1 <- gedit("",width = 8)
+
+
+label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
+
+result_npu <- gedit("",width = 8)
+
+
+label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
+
+result_nmaxp <- gedit("",width = 8)
+
+
+label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
+
+result_nminp <- gedit("",width = 8)
+
+
+label_nmedp <-glabel("Numero medio de passos", editable=FALSE)
+
+result_nmedp <- gedit("",width = 8)
+
+button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
+
+size(button_executar)<- c(100,70)
+
+
+
+
 # creation of the main window
 window<-gwindow("gwindow")
 
@@ -258,11 +262,10 @@ font( i ) <- c( weight = "bold" , color = "black" )
 })
 
 
+nb <- gnotebook( container = BigGroup, expand=TRUE)
+
 add(fparametros,button_executar)
-add(fresultados,button_executar)
-
-
- nb <- gnotebook(container = BigGroup, expand=TRUE)
 
 # adding a space for graphics to the main container
 add(BigGroup, ggraphics( container = nb))
+names(nb)[1] <- "Gráficos"
