@@ -44,14 +44,21 @@ fExecutar <- function(h,...) {
 
 #dispose(nb,fimage)
 
-n <- 7 # numero de vertices
 i <- 1 # iterador
 VerImpares <- 0
+
 cont <- 0
 cont2 <- 0
 gimpar <- 0
-m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
 
+if(svalue(rbg)== "Grafo Exemplo"){
+  m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
+}else{if(svalue(rbg) == "Importe o seu Grafo"){
+  m <- read.table(row.names=1,file = file.choose(),header = TRUE, sep=',')
+}
+}
+
+n <- length(m) # numero de vertices
 m <- as.matrix(m)
 
 g <- graph.adjacency(m, mode ="undirected",weighted = TRUE)
@@ -110,11 +117,10 @@ for( i in 1:gimpar){
     E(g)$weight[length(E(g)$weight)]<-matDist[i,t[i]]
     
     VerImpares[t[i]] = NA
-    #plot(g)
   }
 }
 
-narestas = length(E(g)$weight)
+nArestas = length(E(g))
 i<-1
 
 arestas <- E(g)
@@ -133,21 +139,15 @@ for(i in i:length(arestas)){
 }
 
 
-n <-7
 
 q <-matrix(c(0),n, length(arestas))  #zera Q  
-q
 
-vertices <- c("a","b","c","d","e","f","g")
+
+#vertices <- c("a","b","c","d","e","f","g")
+vertices <- row.names(m)
+
 rownames(q) <- vertices
 
-
-
-tail_of(g,arestas[[5]])
-head_of(g,arestas[[5]])
-
-
- 
 	alpha <-  svalue(edit_alpha)
  	alpha <- as.numeric(alpha)   
  	gamma <-  svalue(edit_gamma)
@@ -159,11 +159,6 @@ head_of(g,arestas[[5]])
 
 gg<-g
 iter<-0
-
-narestas <- 5
-
-length(arestas) 
-
 
 possiveis <- E(g)
 GGG<-NULL
@@ -242,7 +237,7 @@ while(iter < itermax){
           p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
         }
       }
-      q[s,9] <- 1
+      #q[s,9] <- 1
       temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
       #consertado
       pos <- p[sample(temp, 1)] #a????o q sera realizada
@@ -346,7 +341,7 @@ cont2<-0
 momento <- NULL
 for( i in GGG){
   momento[length(momento)+1]<- cont2
-  if (i == 11){
+  if (i ==(nArestas-1) ){
     cont2<- cont2 + 1
   }
 }
@@ -354,9 +349,9 @@ for( i in GGG){
 plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos", cex = 0.5, col = "blue", type = "o")
 points(c(1:itermax),momento, cex = 0.5, col = "blue", type = "o")
 
-svalue(result_np1) <- as.character(match(11,GGG))
+svalue(result_np1) <- as.character(match((nArestas-1),GGG))
 
-svalue(result_sucess) <- as.character(length(which(11==GGG)))
+svalue(result_sucess) <- as.character(length(which( (nArestas-1) == GGG)))
 
 svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 
@@ -418,6 +413,8 @@ group<-ggroup(horizontal=FALSE, container=BigGroup)
 
 fparametros <- gframe("Parâmetros", container=group)
 fresultados <- gframe("Resultados", container=group)
+fgrafo <- gframe("Grafo", container=group)
+
 
 lyt <- glayout ( cont = fparametros)
 lyt[ 1 , 1 ] <- label_alpha
@@ -448,6 +445,9 @@ lyt[ 5 , 2 ] <- button_exportar
 sapply(lyt[ , 1],function( i ){
 #font( i ) <- c( weight = "bold" , color = "black" )
 })
+
+tipoGrafo<- c("Grafo Exemplo", "Importe o seu Grafo")
+rbg <- gradio(tipoGrafo, container = fgrafo)
 
 
 # adding a space for graphics to the main container
@@ -677,7 +677,7 @@ label_nmedp <-glabel("Numero medio de passos", editable=FALSE)
 
 result_nmedp <- gedit("",width = 8)
 
-button_executar <- gbutton("Executar", handler= fExecutar,border=TRUE)
+button_executar <- gbutton("Executar", handler= fExecutar)
 
 size(button_executar)<- c(100,70)
 
@@ -685,7 +685,7 @@ size(button_executar)<- c(100,70)
 
 
 # creation of the main window
-window3<-gwindow("gwindow",viible= FALSE)
+window3<-gwindow("gwindow",visible= FALSE)
 
 # creation of the main container
 BigGroup<-ggroup(cont=window3)
@@ -728,6 +728,7 @@ font( i ) <- c( weight = "bold" , color = "black" )
 })
 
 
+
 add(fparametros,button_executar)
 
 
@@ -736,7 +737,13 @@ nb <- gnotebook( container = BigGroup, expand=TRUE)
 add(BigGroup, ggraphics( container = nb))
 names(nb)[1] <- "Gráficos"
 
+
+
+
+
 dispose(window)
+
+
 visible(window3)<- TRUE
 
 }else{  }}
@@ -745,7 +752,6 @@ visible(window3)<- TRUE
 # creation of the main window
 
 window <-gwindow("LARSim-R")
-
 
 # creation of the main container
 BigGroup<-ggroup(cont=window)
@@ -763,5 +769,6 @@ button_executar <- gbutton("Executar",handler = fButton, container = group)
 size(button_executar)<- c(40,50)
 svalue(rb)<-"CC"
 fimage <- gframe("Realização", container= BigGroup)
-img <- gimage(filename = "img.png",cont = fimage)
+img <- gimage(filename = "C:\\Users\\Tulio\\Desktop\\RLARSim\\img.png",cont = fimage)
 visible(window)<- TRUE
+#source("C:\\Users\\Tulio\\Desktop\\RLARSim\\img.png")
