@@ -2,6 +2,7 @@ library(gWidgets2)
 library(gWidgets2RGtk2)
 library(igraph)
 library(clue)
+options(guiToolkit="RGtk2")
 
 GGG<-NULL
 block25<- NULL
@@ -35,13 +36,22 @@ dev.off()
 
 fExecutar <- function(h,...) {
 
-n <- 7 # numero de vertices
 i <- 1 # iterador
 VerImpares <- 0
 cont <- 0
 cont2 <- 0
 gimpar <- 0
+
+if(svalue(rbg)== "Grafo Exemplo"){
 m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
+}else{if(svalue(rbg) == "Importe o seu Grafo"){
+m <- read.table(row.names=1,file = file.choose(),header = TRUE, sep=',')
+
+}
+
+}
+
+n <- length(m) # numero de vertices
 
 m <- as.matrix(m)
 
@@ -105,7 +115,7 @@ for( i in 1:gimpar){
   }
 }
 
-narestas = length(E(g)$weight)
+nArestas = length(E(g)$weight)
 i<-1
 
 arestas <- E(g)
@@ -124,12 +134,13 @@ for(i in i:length(arestas)){
 }
 
 
-n <-7
+
 
 q <-matrix(c(0),n, length(arestas))  #zera Q  
 q
 
-vertices <- c("a","b","c","d","e","f","g")
+#vertices <- c("a","b","c","d","e","f","g")
+vertices <- row.names(m)
 rownames(q) <- vertices
 
 
@@ -151,7 +162,7 @@ head_of(g,arestas[[5]])
 gg<-g
 iter<-0
 
-narestas <- 5
+
 
 length(arestas) 
 
@@ -233,7 +244,7 @@ while(iter < itermax){
           p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
         }
       }
-      q[s,9] <- 1
+      
       temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
       #consertado
       pos <- p[sample(temp, 1)] #a????o q sera realizada
@@ -316,40 +327,38 @@ while(iter < itermax){
   par(mfrow=c(2,2))
   GGG[iter]<- x
 
-  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =  ,col="blue")
-  points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
+  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex = 0.5 ,col="blue")
+  cont <- cont + x
 
   if(iter %% 25 == 0){
     block25[length(block25)+1]<- cont
     cont <- 0
   }
-  cont <- cont + x
+  
   }
 q
 
-plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos")
+plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos",type="o",cex = 0.5 ,col="blue")
 points(c(1:(itermax/25)),block25/25, cex = 0.5, col = "blue", type = "o")
 
-plot(g,E(g),main = "MAPA")
+plot(g,main = "MAPA")
+  
 
 cont2<-0
-
 momento <- NULL
-
 for( i in GGG){
   momento[length(momento)+1]<- cont2
-  if (i == 11){
+  if (i == nArestas-1){
     cont2<- cont2 + 1
   }
 }
 
-plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos")
+plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos", cex = 0.5, col = "blue", type = "o")
 points(c(1:itermax),momento, cex = 0.5, col = "blue", type = "o")
 
+svalue(result_np1) <- as.character(match(nArestas-1,GGG))
 
-svalue(result_np1) <- as.character(match(11,GGG))
-
-svalue(result_sucess) <- as.character(length(which(11==GGG)))
+svalue(result_sucess) <- as.character(length(which(nArestas-1 == GGG)))
 
 svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 
@@ -359,7 +368,6 @@ svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 
 
 label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
-1
 edit_alpha <- gedit("0.90",width = 8)
 
 label_gamma <- glabel("Fator de Desconto", editable=FALSE)
@@ -394,13 +402,13 @@ label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FAL
 
 result_nmeda <- gedit("",width = 8)
 
-button_exportar <- gbutton("Exportar", handler= fExportar,border=TRUE)
+button_exportar <- gbutton("Exportar", handler= fExportar)
 
 #size(button_exportar)<- c(70,40)
 
 
 # creation of the main window
-window<-gwindow("gwindow")
+window<-gwindow("gwindow", visible = FALSE)
 
 # creation of the main container
 BigGroup<-ggroup(cont=window)
@@ -411,6 +419,7 @@ group<-ggroup(horizontal=FALSE, container=BigGroup)
 
 fparametros <- gframe("Parâmetros", container=group)
 fresultados <- gframe("Resultados", container=group)
+fgrafo <- gframe("Grafo", container=group)
 
 lyt <- glayout ( cont = fparametros)
 lyt[ 1 , 1 ] <- label_alpha
@@ -442,7 +451,17 @@ sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
 
- nb <- gnotebook(container = BigGroup, expand=TRUE, )
+
+tipoGrafo<- c("Grafo Exemplo","Importe o seu Grafo")
+rbg <- gradio(tipoGrafo, container = fgrafo)
 
 # adding a space for graphics to the main container
-add(BigGroup, ggraphics( container = nb, name = "Gráficos"))
+
+g1<-ggraphics(container = BigGroup , expand = TRUE)
+
+
+# adding a space for graphics to the main container
+#nb <- gnotebook(container = BigGroup, expand=TRUE, )
+#add(BigGroup, ggraphics( container = nb, name = "Gráficos"))
+
+visible(window) <- TRUE
