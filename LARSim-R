@@ -23,17 +23,17 @@ jpeg(filename = "Rplot.jpg", width = 480, height = 480,
 
 par(mfrow=c(2,2))
 
-plot(c(1:25),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =  ,col="blue")
+plot(c(1:25),GGG,xlab = "Episódio", ylab = "Acertos",type="o",cex =  ,col="blue")
 points(c(1:25),GGG, cex = 0.5, col = "blue", type = "o")
 
 
 
-plot(c(1:(25/25)),block25,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+plot(c(1:(25/25)),block25,xlab = "Episódio", ylab = "Acertos",type="o",cex =0.5)
 points(c(1:(25/25)),block25, cex = 0.5, col = "blue", type = "o")
 
 plot(g,E(g), main= "MAPA")
 
-plot(c(1:25),momento,xlab = "Interações", ylab = "Acertos")
+plot(c(1:25),momento,xlab = "Episódio", ylab = "Acertos")
 points(c(1:25),momento, cex = 0.5, col = "blue", type = "o")
 
 
@@ -237,7 +237,7 @@ while(iter < itermax){
           p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
         }
       }
-      #q[s,9] <- 1
+      
       temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
       #consertado
       pos <- p[sample(temp, 1)] #a????o q sera realizada
@@ -273,7 +273,7 @@ while(iter < itermax){
       R <- -10000
       x <- x + 1
     }else {
-      R <- 1000
+      R <- 10000
     }
     
       ss <- caminho[length(caminho)];
@@ -320,7 +320,7 @@ while(iter < itermax){
   par(mfrow=c(2,2))
   GGG[iter]<- x
 
-  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex = 0.5 ,col="blue")
+  plot(c(1:iter),GGG+1,xlab = "Episódios", ylab = "Acertos",type="o",cex = 0.5 ,col="blue")
   cont <- cont + x
 
   if(iter %% 25 == 0){
@@ -331,7 +331,7 @@ while(iter < itermax){
   }
 q
 
-plot(c(1:(itermax/25)),block25/25,xlab = "Blocos de 25 Interações", ylab = "Média de Acertos",type="o",cex = 0.5 ,col="blue")
+plot(c(1:(itermax/25)),block25/25,xlab = "Blocos com 25 Episódios", ylab = "Média de Acertos",type="o",cex = 0.5 ,col="blue")
 points(c(1:(itermax/25)),block25/25, cex = 0.5, col = "blue", type = "o")
 
 plot(g,main = "MAPA")
@@ -346,7 +346,7 @@ for( i in GGG){
   }
 }
 
-plot(c(1:itermax),momento,xlab = "Interações", ylab = "Acertos", cex = 0.5, col = "blue", type = "o")
+plot(c(1:itermax),momento,xlab = "Episódios", ylab = "Acertos", cex = 0.5, col = "blue", type = "o")
 points(c(1:itermax),momento, cex = 0.5, col = "blue", type = "o")
 
 svalue(result_np1) <- as.character(match((nArestas-1),GGG))
@@ -361,16 +361,16 @@ svalue(result_nmeda) <- as.character(sum(GGG)/itermax)
 
 
 label_alpha <- glabel("Taxa de Aprendizado", editable=FALSE)
-edit_alpha <- gedit("0.90",width = 8)
+edit_alpha <- gedit("0.75",width = 8)
 
 label_gamma <- glabel("Fator de Desconto", editable=FALSE)
-edit_gamma <- gedit("0.9",width = 8)
+edit_gamma <- gedit("0.15",width = 8)
 
 label_e <- glabel("e-greedy", editable=FALSE)
 edit_e <- gedit("0.05",width = 8)
 
-label_itermax <-glabel("Interações", editable=FALSE)
-edit_itermax <-gedit("25",width = 8)
+label_itermax <-glabel("Episódio", editable=FALSE)
+edit_itermax <-gedit("1000",width = 8)
 
 button_executar <- gbutton("Executar", handler= fExecutar)
 size(button_executar)<- c(70,40)
@@ -391,7 +391,7 @@ label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
 
 result_nmaxp <- gedit("",width = 8)
 
-label_nmeda <-glabel("Numero medio de arestas escolhidas corretas", editable=FALSE)
+label_nmeda <-glabel("Média de arestas escolhidas corretamente", editable=FALSE)
 
 result_nmeda <- gedit("",width = 8)
 
@@ -402,7 +402,7 @@ button_exportar <- gbutton("Exportar", handler= fExportar)
 
 
 # creation of the main window
-window2<-gwindow("gwindow", visible = FALSE)
+window2<-gwindow("LARSim-R PCC", visible = FALSE)
 visible(window2)<- TRUE
 # creation of the main container
 BigGroup<-ggroup(cont=window2)
@@ -412,8 +412,9 @@ group<-ggroup(horizontal=FALSE, container=BigGroup)
 
 
 fparametros <- gframe("Parâmetros", container=group)
-fresultados <- gframe("Resultados", container=group)
 fgrafo <- gframe("Grafo", container=group)
+fresultados <- gframe("Resultados", container=group)
+
 
 
 lyt <- glayout ( cont = fparametros)
@@ -431,13 +432,18 @@ sapply(lyt[ , 1],function( i ){
 #font( i ) <- c( weight = "bold" , color = "black" )
 })
 
+
+tipoGrafo<- c("Grafo Exemplo", "Importe o seu Grafo")
+rbg <- gradio(tipoGrafo, container = fgrafo)
+
+
 lyt <- glayout ( cont = fresultados)
 lyt[ 1 , 1 ] <- label_sucess
 lyt[ 1 , 2 ] <- result_sucess
 lyt[ 2 , 1 ] <- label_np1
 lyt[ 2 , 2 ] <- result_np1
-lyt[ 3 , 1 ] <- label_nmaxp
-lyt[ 3 , 2 ] <- result_nmaxp
+#lyt[ 3 , 1 ] <- label_nmaxp
+#lyt[ 3 , 2 ] <- result_nmaxp
 lyt[ 4 , 1 ] <- label_nmeda
 lyt[ 4 , 2 ] <- result_nmeda
 lyt[ 5 , 2 ] <- button_exportar
@@ -445,10 +451,6 @@ lyt[ 5 , 2 ] <- button_exportar
 sapply(lyt[ , 1],function( i ){
 #font( i ) <- c( weight = "bold" , color = "black" )
 })
-
-tipoGrafo<- c("Grafo Exemplo", "Importe o seu Grafo")
-rbg <- gradio(tipoGrafo, container = fgrafo)
-
 
 # adding a space for graphics to the main container
 g1<-ggraphics(container = BigGroup , expand = TRUE)
@@ -469,6 +471,10 @@ visible(window2) <- TRUE
 #delete(nb[1],fimage)
 
 }else{if(svalue(rb) == "NAV"){
+
+
+fButton_exportar <- function(h,...) {}
+
 
 fExecutar <- function(h,...) {
 
@@ -512,15 +518,20 @@ fExecutar <- function(h,...) {
   count <- 1
   rotx <- 0
   roty <- 0
-
+  vetPassos<-NULL
   while(iter < itermax){
     
     iter <- iter + 1
+
+    R <- -1
+	passos <-0
+	while(R == -1) { 
+	
+	passos<-passos+1
+	s = (L-1)*NC+C #estado atual
     
-    s = (L-1)*NC+C #estado atual
-    
-    if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
-      NAA <- NAA + 1
+    	if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
+     	NAA <- NAA + 1
       a <- sample(1:4,1) #numero aleatorio de 1 a 4, direÃ§Ã£o que irÃ¡ andar
     }else{
       temp <- which(q[s,] == max(q[s,]))  #posiÃ§Ã£o dos melhores resultados parao estado s na matriz q
@@ -532,6 +543,7 @@ fExecutar <- function(h,...) {
       C=C-1
       roty[count] <- NL-L+1
       rotx[count] <- C
+
     }
     if (a==2){ #cima
       L=L-1
@@ -569,13 +581,12 @@ fExecutar <- function(h,...) {
     aa= temp[sample(length(temp), 1)]
     q[s,a] = q[s,a] + alpha*(R+gamma* q[ss,aa] - q[s,a])
     
-    
-    
-    if (R != -1) {              
+    }             
       C=Ci
       L=Li
       NEP=NEP+1
-      
+      vetPassos[iter]<- passos
+
       x <- c(1,2,3,4,5,6,7,8,9,10
              ,10,10,10,10,10,10,10,10,10,10
              ,10,9,8,7,6,5,4,3,2,1
@@ -587,45 +598,51 @@ fExecutar <- function(h,...) {
      	
 	par(mfrow=c(1,2))
       
-      plot(x,y, col = "red",type = "p")
+      plot(x,y, col = "red",type = "o")
       
-      z <- c(7,7,8,8)
-      k <- c(3,4,3,4)
+      #z <- c(7,7,8,8)
+      #k <- c(3,4,3,4)
+	
+	z <- c(3,3,4,4,3)
+      k <- c(7,8,8,7,7)
       
-      points(z,k, cex = .5, col = "blue", type = "o")
-      
-      
-      z <- c(2,2,3,3)
-      k <- c(5,6,6,5)
-      
-      points(z,k, cex = .5, col = "blue",type = "o")
-      
-      z <- c(5,6,6,5)
-      k <- c(5,6,5,6)
+
+      points(k,z, cex = 2, col = "blue", type = "o")
       
       
-      points(z,k, cex = .5, col = "blue",type = "o")
+      z <- c(2,2,3,3,2)
+      k <- c(5,6,6,5,5)
       
-      points(2,9, cex = 2 , col = "black",type = "o")
+      points(z,k, cex = 2, col = "blue",type = "o")
+      
+      z <- c(5,5,6,6,5)
+      k <- c(5,6,6,5,5)
       
       
-      points(8,2, cex = 2 , col = "black",type = "o")
+      points(z,k, cex = 2, col = "blue",type = "o")
+      
+      points(2,9, cex = 2 , col = "Green",type = "o",pch =19)
+      
+      
+      points(8,2, cex = 2 , col = "Yellow",pch = 19, type = "o")
       grid(nx = NULL, ny = NULL, col = "black", lty = "dotted")    
       
       points( rotx, roty, cex = 2 , col = "black",type = "o")
       GGG[iter]<- GG
 
-    plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
+    plot(c(1:iter),GGG,xlab = "Episódio", ylab = "Acertos",type="o",cex =0.5)
     points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
     
       Sys.sleep(0.05)
 	count <- 1
       rotx <- Li
       roty <- Ci
-    }
-  }
 
 svalue(result_sucess) <- as.character(GG)
+svalue(result_sucess) <- as.character(itermax/GG)    
+  }
+
+
 }
 
 
@@ -642,7 +659,7 @@ label_e <- glabel("e-greedy", editable=FALSE)
 
 edit_e <- gedit("0.05",width = 8)
 
-label_itermax <-glabel("Interações", editable=FALSE)
+label_itermax <-glabel("Episódios", editable=FALSE)
 
 edit_itermax <-gedit("500",width = 8)
 
@@ -653,39 +670,47 @@ label_sucess <-glabel("Sucessos", editable=FALSE)
 result_sucess <- gedit("",width = 8)
 
 
-label_np1 <-glabel("Numero de passos para o primeiro Sucesso", editable=FALSE)
+label_np1 <-glabel("Numero de Episódios para o primeiro Sucesso", editable=FALSE)
 
 result_np1 <- gedit("",width = 8)
 
 
-label_npu <-glabel("Numero de passos no ultimo sucesso", editable=FALSE)
+label_npu <-glabel("Numero de passos no primeiro episódio de sucesso", editable=FALSE)
 
 result_npu <- gedit("",width = 8)
 
 
-label_nmaxp <-glabel("Numero maximo de passos", editable=FALSE)
+label_nmaxp <-glabel("Numero de açoes aleatórias", editable=FALSE)
 
-result_nmaxp <- gedit("",width = 8)
-
-
-label_nminp <-glabel("Numero minimo de passos", editable=FALSE)
-
-result_nminp <- gedit("",width = 8)
+result_nmaxp <- gedit("10",width = 8)
 
 
-label_nmedp <-glabel("Numero medio de passos", editable=FALSE)
+label_nminp <-glabel("Numero minimo de passos/ações para o sucesso", editable=FALSE)
 
-result_nmedp <- gedit("",width = 8)
+result_nminp <- gedit("13",width = 8)
+
+
+label_nmedp <-glabel("Numero medio de passos/ações", editable=FALSE)
+
+result_nmedp <- gedit("17",width = 8)
+
+
+label_nmedes <-glabel("Número médio de episódios por sucesso", editable=FALSE)
+
+result_nmedes <- gedit("",width = 8)
+
 
 button_executar <- gbutton("Executar", handler= fExecutar)
 
 size(button_executar)<- c(100,70)
 
 
+button_exportarNAV <- gbutton("Exportar",handler = fButton_exportar)
+
 
 
 # creation of the main window
-window3<-gwindow("gwindow",visible= FALSE)
+window3<-gwindow("LARSim-R NAV",visible= FALSE)
 
 # creation of the main container
 BigGroup<-ggroup(cont=window3)
@@ -696,6 +721,7 @@ group<-ggroup(horizontal=FALSE, container=BigGroup)
 
 fparametros <- gframe("Parâmetros", container=group)
 fresultados <- gframe("Resultados", container=group)
+fmatriz <- gframe("Matriz", container = group)
 
 lyt <- glayout ( cont = fparametros)
 lyt[ 1 , 1 ] <- label_alpha
@@ -706,6 +732,7 @@ lyt[ 3 , 1 ] <- label_e
 lyt[ 3 , 2 ] <- edit_e
 lyt[ 4 , 1 ] <- label_itermax
 lyt[ 4 , 2 ] <- edit_itermax
+lyt[ 5 , 2 ] <- button_executar
 sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
@@ -723,13 +750,17 @@ lyt[ 5 , 1 ] <- label_nminp
 lyt[ 5 , 2 ] <- result_nminp
 lyt[ 6 , 1 ] <- label_nmedp
 lyt[ 6 , 2 ] <- result_nmedp
+lyt[ 7 , 1 ] <- label_nmedes
+lyt[ 7 , 2 ] <- result_nmedes
+lyt[ 8 , 2 ] <- button_exportarNAV
 sapply(lyt[ , 1],function( i ){
 font( i ) <- c( weight = "bold" , color = "black" )
 })
 
 
 
-add(fparametros,button_executar)
+tipoMatriz<- c("Matriz Exemplo", "Importe a sua Matriz")
+rbm <- gradio(tipoMatriz, container = fmatriz)
 
 
 nb <- gnotebook( container = BigGroup, expand=TRUE)
@@ -762,12 +793,12 @@ group<-ggroup(horizontal=FALSE, container=BigGroup)
 fmodulos <- gframe("Modulos", container=group)
 size(fmodulos)<- c(300,300)
 
-modulo <- c("NAV","CC","Estatistico")
+modulo <- c("CC","NAV","Estatistico")
 rb <- gradio(modulo, container= fmodulos)
 
 button_executar <- gbutton("Executar",handler = fButton, container = group)
 size(button_executar)<- c(40,50)
-svalue(rb)<-"CC"
+svalue(rb)<-"NAV"
 fimage <- gframe("Realização", container= BigGroup)
 img <- gimage(filename = "C:\\Users\\Tulio\\Desktop\\RLARSim\\img.png",cont = fimage)
 visible(window)<- TRUE
