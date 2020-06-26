@@ -1,21 +1,19 @@
 library(igraph)
 library(clue)
-
-n <- 7 # numero de vertices
 i <- 1 # iterador
 VerImpares <- 0
 
 gimpar <- 0
 m <- read.table(row.names=1,file = "/Users/Tulio/Desktop/matrix.csv",header = TRUE, sep=',')
 
+n <- length(m) # numero de vertices
+
 m <- as.matrix(m)
 
 g <- graph.adjacency(m, mode ="undirected",weighted = TRUE)
 
-round(E(g)$weight,3)
 
-
-plot(g,edge.label=round(E(g)$weight, 3))
+#plot(g,edge.label=round(E(g)$weight, 3))
 
 dist <- distances(g)
 grau <- degree(g)
@@ -59,7 +57,6 @@ t <- solve_LSAP(matDist, maximum = FALSE)
 
 t <- as.vector(t)
 
-plot(g,edge.label=round(E(g)$weight,3))
 matDist<- as.matrix(matDist)
 
 for( i in 1:gimpar){
@@ -69,15 +66,15 @@ for( i in 1:gimpar){
     E(g)$weight[length(E(g)$weight)]<-matDist[i,t[i]]
     
     VerImpares[t[i]] = NA
-    plot(g)
+    
   }
 }
 
-plot(g,edge.label=round(E(g)$weight,3))
+#plot(g,edge.label=round(E(g)$weight,3))
 
 #tkplot(g,edge.label=round(E(g)$weight,3))
 
-narestas = length(E(g)$weight)
+nArestas = length(E(g))
 i<-1
 
 
@@ -96,52 +93,46 @@ for(i in i:length(arestas)){
   }
 }
 
-
-n <-7
+#are <- E(g)
 
 q <-matrix(c(0),n, length(arestas))  #zera Q  
-q
 
-vertices <- c("a","b","c","d","e","f","g")
+vertices <- row.names(m)
+
+
 rownames(q) <- vertices
 
-
-
-tail_of(g,arestas[[5]])
-head_of(g,arestas[[5]])
-
-
-alpha <- 0.75
-gamma <- 0.15
-e <- 0.01       #Guloso
-itermax <- 1000   #itera????es maximo
+alpha <- 1
+gamma <- 0.00
+e <- 0.00    #Guloso
+itermax <- 200 #itera????es maximo
 
 gg<-g
 iter<-0
 
-narestas <- 5
-#    if((tail_of(g,arestas[i])==tail_of(g,arestas[9]) )&&(head_of(g,arestas[12])==head_of(arestas[9]))){}
-
-length(arestas) 
-
-
+cont <- 0
+cont8<-0
 possiveis <- E(g)
 GGG<-NULL
-block25 <- NULL
+block <- NULL
+tamBlock <- 25
+maior8 <- NULL
+are<- matrix(nrow = itermax*2 , ncol = nArestas+1)
+iter <- 0 
+
 while(iter < itermax){
-  
   iter <- iter+1
   possiveis<-NULL
   caminho <- NULL
   a<-NULL
+  reforcos <-NULL
+  reforcos[1]<-NA
   possiveis <- E(g)
-  #a <- possiveis[1]
-
+  
   caminho <- names(tail_of(g,possiveis[1]))
-  #possiveis <- possiveis[-1]
   
   x<-0
-  
+  i<-nArestas
   while(length(possiveis) != 1){
     #s <- a
     
@@ -149,9 +140,9 @@ while(iter < itermax){
     
     if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
       #vertices[-match('TRUE', letters==v)] impossibilita ficar no mesmo estado
-     
+      
       p<- NULL
-      ##encontra possição no vet aresta
+      ##encontra possiÃ§Ã£o no vet aresta
       for(i in 1:length(possiveis)){
         if(is.na(match('TRUE',arestas==possiveis[i]))){
           for(j in 1:length(arestas)){
@@ -169,32 +160,26 @@ while(iter < itermax){
       a <- arestas[pos]
       
       
-      troca<-NULL
-      if(names(head_of(g,a)) == s){
-      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
-      troca <- TRUE
-      }else{
-        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
-      troca<-FALSE
-        }
       
-      ##encontra possição no vet possiveis
+      
+      
+      ##encontra possiÃ§Ã£o no vet possiveis
       if(is.na(match('TRUE',possiveis == arestas[pos]))){
-      for(i in 1:length(possiveis)){
-            if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
-              possiveis <- possiveis[-i]
-              break
-            }
+        for(i in 1:length(possiveis)){
+          if((tail_of(g,arestas[pos]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[pos]) == head_of(g,possiveis[i]))){
+            possiveis <- possiveis[-i]
+            break
+          }
         }
-        }else{
-          possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
-        }
+      }else{
+        possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
+      }
       #a <- sample(vertices[-match('TRUE', letters==s)],1)
     }else{
       
       p<- NULL
       
-      ##encontra possição no vet aresta, das arestas que ainda sao possiveis
+      ##encontra possiÃ§Ã£o no vet aresta, das arestas que ainda sao possiveis
       for(i in 1:length(possiveis)){
         if(is.na(match('TRUE',arestas==possiveis[i]))){
           for(j in 1:length(arestas)){
@@ -206,22 +191,10 @@ while(iter < itermax){
           p[length(p) + 1] <- match('TRUE',arestas == possiveis[i])
         }
       }
-      q[s,9] <- 1
+      
       temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
-      #consertado
       pos <- p[sample(temp, 1)] #a????o q sera realizada
-      #pos< p[pos]
       a <- arestas[pos]
-      
-      
-      troca<-NULL
-      if(names(head_of(g,a)) == s){
-        caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
-        troca <- TRUE
-      }else{
-        caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
-        troca<-FALSE
-      }
       
       if(is.na(match('TRUE',possiveis == arestas[pos]))){
         for(i in 1:length(possiveis)){
@@ -233,24 +206,35 @@ while(iter < itermax){
       }else{
         possiveis <- possiveis[-match('TRUE',possiveis == arestas[pos])]
       }
-      #a <- names(a)
     }
     
     R <- -1
     
     
-    
-    if((s != names(tail_of(g,a))) && (troca != TRUE)){      #nao tem conexao
-      R <- -10000
-      x <- x + 1
-    }else {
-      R <- 1000
+    troca<-NULL
+    if(names(head_of(g,a)) == s){
+      caminho[length(caminho)+1] <- names(tail_of(g,arestas[pos]))
+      troca <- TRUE
+    }else{
+      caminho[length(caminho)+1] <- names(head_of(g,arestas[pos]))
+      troca<-FALSE
     }
     
-      ss <- caminho[length(caminho)];
-  
+    
+    if((s == names(tail_of(g,a))) || (troca == TRUE)){      #nao tem conexao
+      R <- 1
+      reforcos[length(reforcos)+1]<- 1
+      x <- x + 1
+    }else {
+      R <- -10000
+      reforcos[length(reforcos)+1] <- 0
+    }
+    
+    
+    ss <- caminho[length(caminho)];
+    
     p<- NULL 
-
+    
     for(i in 1:length(possiveis)){
       if(is.na(match('TRUE',arestas==possiveis[i]))){
         for(j in 1:length(arestas)){
@@ -266,18 +250,8 @@ while(iter < itermax){
     temp <- which(q[ss,p] == max(q[ss,p]))  
     
     pos <- p[sample(temp, 1)] #a????o q sera realizada
-    #pos <- p[pos]
     
     aa <- arestas[pos]
-    
-    #nao considero o andar
-    #caminho[length(caminho)+1] <- names(tail_of(g,possiveis[pos]))
-    #possiveis <- possiveis[-pos]
-    
-    caminho
-    possiveis
-    a
-    aa
     
     k<- ( (is.na(match('TRUE',arestas==a)))||(is.na(match('TRUE',arestas==aa))))
     if(k){
@@ -289,30 +263,61 @@ while(iter < itermax){
           aaii <- i
         }
       }
-      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[ss,ai])
+      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[s,ai])
     }else{
-      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[ss,match('TRUE',arestas==a)])
+      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[s,match('TRUE',arestas==a)])
     }
-    
+    caminho
+    a
+    possiveis
   }
-  possiveis
-  caminho
   
-  GGG[iter]<- x
-  plot(c(1:iter),GGG,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
-  points(c(1:iter),GGG, cex = 0.5, col = "blue", type = "o")
+  if(names(tail_of(g,possiveis[1])) == s )
+  {
+    x<-x +1
+    caminho[length(caminho)+1] <- names(tail_of(g,possiveis[1]))
+    reforcos[nArestas +1] <- 1
+    
+    }else{
+    if(names(head_of(g,possiveis[1]))==s){
+      x<-x +1
+      caminho[length(caminho)+1] <- names(head_of(g,possiveis[1]))
+      reforcos[nArestas +1] <- 1
+      
+        }else{
+      caminho[length(caminho)+1] <- names(head_of(g,possiveis[1]))
+      reforcos[nArestas +1] <- 0
+        }
+    }
   
-  if(iter %% 25 == 0){
-    block25[length(block25)+1]<- cont
+    GGG[iter]<- x
+ are[iter*2-1,] <- caminho
+  are[iter+iter,] <- reforcos
+  
+  if(iter %% tamBlock == 0){
+    block[length(block)+1]<- cont
     cont <- 0
+    maior8[length(maior8)+1] <- cont8
+    cont8 <- 0
   }
   cont <- cont + x
+  
+  if(x >= 8){cont8 <- cont8 +1 }
+    
+  if (iter > tamBlock){plot(c(1:(length(block))),block/tamBlock,xlab = "bloco de 25 interações", ylab = "media de Acertos",type="o",cex =0.5)}  
+  plot(c(1:length(GGG)),GGG,xlab = "Interações", ylab = "Acertos",type="o")
+  
+  
   }
+caminho
+
+
+plot(c(1:(length(maior8))),maior8,xlab = "bloco de 25 episodios", ylab = "mais que 8",type="o",cex =0.5)
 q
-sum(GGG)/itermax
+
+plot(c(1:(length(block))),block/tamBlock,xlab = "bloco de 25 episodios", ylab = "media de Acertos",type="o",cex =0.5)
 
 
+sum(GGG)/length(GGG)
 
-plot(c(1:(itermax/25)),block25/25,xlab = "Interações", ylab = "Acertos",type="o",cex =0.5)
-
-       
+plot(g)
