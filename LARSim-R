@@ -227,7 +227,7 @@ while(iter < itermax){
       
       ##encontra possição no vet aresta, das arestas que ainda sao possiveis
       for(i in 1:length(possiveis)){
-        if(is.na(match('TRUE',arestas==possiveis[i]))){
+        if(is.na(match('TRUE', arestas == possiveis[i] ))){
           for(j in 1:length(arestas)){
             if((tail_of(g,arestas[j]) == tail_of(g,possiveis[i]) ) && (head_of(g,arestas[j]) == head_of(g,possiveis[i]))){
               p[length(p) + 1] <- j
@@ -238,9 +238,9 @@ while(iter < itermax){
         }
       }
       
-      temp <- which(q[s,p] == max(q[s,p]))  #posi????o dos melhores resultados parao estado s na matriz q
-      #consertado
-      pos <- p[sample(temp, 1)] #a????o q sera realizada
+      temp <- which(q[s,p] == max(q[s,p]))  #posição dos melhores resultados parao estado s na matriz q
+      
+      pos <- p[sample(temp, 1)] #ação q será realizada
       a <- arestas[pos]
       
       
@@ -309,9 +309,10 @@ while(iter < itermax){
           aaii <- i
         }
       }
-      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[ss,ai])
+      q[s,ai] = q[s,ai] + alpha*(R+gamma * q[ss,aaii] - q[s,ai])
     }else{
-      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[ss,match('TRUE',arestas==a)])
+      q[s,match('TRUE',arestas==a)] = q[s,match('TRUE',arestas==a)] + 
+      alpha*(R+gamma * q[ss,match('TRUE',arestas==aa)] - q[s,match('TRUE',arestas==a)])
     }
     
   }
@@ -470,6 +471,27 @@ visible(window2) <- TRUE
 #names(nb)[1] <- "Gráficos"
 #delete(nb[1],fimage)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }else{if(svalue(rb) == "NAV"){
 
 
@@ -527,59 +549,59 @@ fExecutar <- function(h,...) {
 	passos <-0
 	while(R == -1) { 
 	
-	passos<-passos+1
-	s = (L-1)*NC+C #estado atual
-    
-    	if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
-     	NAA <- NAA + 1
-      a <- sample(1:4,1) #numero aleatorio de 1 a 4, direÃ§Ã£o que irÃ¡ andar
-    }else{
-      temp <- which(q[s,] == max(q[s,]))  #posiÃ§Ã£o dos melhores resultados parao estado s na matriz q
-      a= temp[sample(length(temp), 1)]  #aÃ§Ã£o q sera realizada
-    }
-    
-    
-    if (a==1){ #esquerda
-      C=C-1
-      roty[count] <- NL-L+1
-      rotx[count] <- C
+            passos<-passos+1
+            s = (L-1)*NC+C #estado atual
+              
+                if( runif(1,0,1) < e){    #numero aleatorio de 0 a 1
+                NAA <- NAA + 1
+                a <- sample(1:4,1) #numero aleatorio de 1 a 4, direÃ§Ã£o que irÃ¡ andar
+              }else{
+                temp <- which(q[s,] == max(q[s,]))  #posiÃ§Ã£o dos melhores resultados parao estado s na matriz q
+                a= temp[sample(length(temp), 1)]  #aÃ§Ã£o q sera realizada
+              }
+              
+              
+              if (a==1){ #esquerda
+                C=C-1
+                roty[count] <- NL-L+1
+                rotx[count] <- C
 
-    }
-    if (a==2){ #cima
-      L=L-1
-      roty[count] <- NL-L+1
-      rotx[count] <- C
-    }
-    if (a==3){ #baixo
-      L=L+1
-      roty[count] <- NL-L+1
-      rotx[count] <- C
-    }
-    if (a==4){ #direita
-      C=C+1
-      roty[count] <- NL-L+1
-      rotx[count] <- C
-    }
-    
-    count = count + 1
-    
-    R <- -1
-    if( m[L,C] == 0 ){      #bateu
-      R <- -100
-    }else if (m[L,C] == 100){    #chegou no lugar certo
-      R=1000
-      GG=GG+1
-	if(GG==1){ 
-		svalue(result_np1) <- as.character(iter)
-		}
-    }
-    
-    
-    ss <- (L-1)*NC+C;
-    
-    temp <- which(q[ss,] == max(q[ss,]))
-    aa= temp[sample(length(temp), 1)]
-    q[s,a] = q[s,a] + alpha*(R+gamma* q[ss,aa] - q[s,a])
+              }
+              if (a==2){ #cima
+                L=L-1
+                roty[count] <- NL-L+1
+                rotx[count] <- C
+              }
+              if (a==3){ #baixo
+                L=L+1
+                roty[count] <- NL-L+1
+                rotx[count] <- C
+              }
+              if (a==4){ #direita
+                C=C+1
+                roty[count] <- NL-L+1
+                rotx[count] <- C
+              }
+              
+              count = count + 1
+              
+              R <- -1
+              if( m[L,C] == 0 ){      #bateu
+                R <- -100
+              }else if (m[L,C] == 100){    #chegou no lugar certo
+                R=1000
+                GG=GG+1
+            if(GG==1){ 
+              svalue(result_np1) <- as.character(iter)
+              svalue(result_npu)  <- as.character(passos)  
+              }
+              }
+              
+              ss <- (L-1)*NC+C;
+              
+              temp <- which(q[ss,] == max(q[ss,]))
+              aa= temp[sample(length(temp), 1)]
+              q[s,a] = q[s,a] + alpha*(R+gamma* q[ss,aa] - q[s,a])
     
     }             
       C=Ci
@@ -639,7 +661,10 @@ fExecutar <- function(h,...) {
       roty <- Ci
 
 svalue(result_sucess) <- as.character(GG)
-svalue(result_sucess) <- as.character(itermax/GG)    
+svalue(result_nmedes) <- as.character(itermax/GG)  
+svalue(result_nmaxp)  <- as.character(NAA)
+
+
   }
 
 
@@ -682,7 +707,7 @@ result_npu <- gedit("",width = 8)
 
 label_nmaxp <-glabel("Numero de açoes aleatórias", editable=FALSE)
 
-result_nmaxp <- gedit("10",width = 8)
+result_nmaxp <- gedit("",width = 8)
 
 
 label_nminp <-glabel("Numero minimo de passos/ações para o sucesso", editable=FALSE)
